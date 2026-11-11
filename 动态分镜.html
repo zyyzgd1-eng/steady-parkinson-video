@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>帕金森震颤腕戴设备 · 60s 动态分镜</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#0e1013;color:#dfe3e8;font-family:"PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif}
+  header{padding:20px 32px;border-bottom:1px solid #222}
+  h1{margin:0;font-size:20px;font-weight:500}
+  .sub{color:#8a929c;font-size:13px;margin-top:6px}
+  .player{max-width:960px;margin:24px auto;padding:0 16px}
+  .screen{position:relative;aspect-ratio:16/9;background:#000;border-radius:6px;overflow:hidden}
+  .screen svg{width:100%;height:100%;display:block}
+  .cap{position:absolute;left:0;right:0;bottom:7%;text-align:center;font-size:clamp(14px,2.4vw,24px);font-weight:300;text-shadow:0 1px 4px #000}
+  .tag{position:absolute;top:12px;left:12px;font-size:12px;padding:3px 8px;border-radius:3px;background:#0008}
+  .tc{position:absolute;top:12px;right:12px;font-size:12px;font-family:monospace;background:#0008;padding:3px 8px;border-radius:3px}
+  .ctrl{display:flex;gap:12px;align-items:center;margin-top:12px}
+  button{background:#2a6f86;color:#fff;border:0;padding:8px 18px;border-radius:4px;cursor:pointer;font-size:14px}
+  .bar{flex:1;height:22px;display:flex;border-radius:3px;overflow:hidden;cursor:pointer;position:relative}
+  .bar div{height:100%;border-right:1px solid #0e1013}
+  .head{position:absolute;top:0;bottom:0;width:2px;background:#fff;pointer-events:none}
+  .note{margin-top:10px;font-size:13px;color:#aab2bc;min-height:40px;line-height:1.6}
+  .grid{max-width:1200px;margin:32px auto;padding:0 16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px}
+  .card{background:#16191d;border-radius:6px;overflow:hidden;cursor:pointer}
+  .card svg{width:100%;aspect-ratio:16/9;display:block;background:#000}
+  .card .t{padding:10px 12px;font-size:13px;line-height:1.6}
+  .card b{color:#fff}
+  .SW{background:#2a6f86}.拍{background:#a8743a}.AE{background:#6b4fa0}
+  .legend span{display:inline-block;padding:2px 8px;border-radius:3px;margin-right:8px;font-size:12px}
+</style>
+</head>
+<body>
+<header>
+  <h1>帕金森震颤腕戴设备 · 60 秒宣传片 · 动态分镜 (Animatic)</h1>
+  <div class="sub legend">按真实时长播放，用来确认节奏。来源：<span class="SW">SW 渲染</span><span class="拍">实拍/素材</span><span class="AE">AE 图形</span></div>
+</header>
+
+<div class="player">
+  <div class="screen" id="screen"><div id="frame"></div><div class="tag" id="tag"></div><div class="tc" id="tc"></div><div class="cap" id="cap"></div></div>
+  <div class="ctrl"><button id="play">▶ 播放</button><div class="bar" id="bar"><div class="head" id="head"></div></div></div>
+  <div class="note" id="note"></div>
+</div>
+<div class="grid" id="grid"></div>
+
+<script>
+const shots=[
+ {d:4,src:"AE",art:"title",cap:"全球超过 1000 万人，正与帕金森病共处",note:"黑场，白字缓慢淡入。低频环境音 + 单音钢琴。"},
+ {d:5,src:"拍",art:"cupShake",cap:"一杯水，也会变得很远",note:"大特写，三脚架固定，85mm f/1.8。手握玻璃杯在抖，水面涟漪。与镜头 12 同机位。"},
+ {d:4,src:"拍",art:"spiral",cap:"写下自己的名字，需要很多力气",note:"俯拍，缓慢下摇。画螺旋线测试，线条歪斜断续。"},
+ {d:3,src:"AE",art:"wave",cap:"",note:"匹配剪辑：水面涟漪推近→变暗→化为发光震颤波形线。whoosh 转场音。"},
+ {d:5,src:"SW",art:"reveal",cap:"【产品名】",note:"Visualize：纯黑背景，dolly in 50→85mm。后方条形 Area Light 打位移关键帧，光从左扫到右。"},
+ {d:4,src:"SW",art:"macro",cap:"",note:"100mm 微距横移，开景深。磨砂外壳→拉丝金属圈→呼吸灯亮起（自发光亮度关键帧）。"},
+ {d:5,src:"SW",art:"hero",cap:"【Slogan】",note:"360° 转台，俯视 15°，黑色镜面地台出倒影。"},
+ {d:6,src:"SW",art:"explode",cap:"每一层，都为稳定而设计",note:"SolidWorks 动画爆炸 → Motion Study → Visualize 渲染。上壳/主板/IMU/电池/马达/下壳逐层分离。"},
+ {d:5,src:"SW",art:"sensor",cap:"高精度传感器，持续识别震颤频率与幅度",note:"推向 IMU 芯片，输出带 Alpha 的 PNG 序列；AE 叠加波形和“静止性震颤 4–6 Hz”标注。"},
+ {d:5,src:"AE",art:"pose",cap:"AI 算法，把症状变成看得见的数据",note:"手部关键点追踪（参考 UCSF 视频），旁边曲线逐日变平稳。"},
+ {d:4,src:"SW",art:"assemble",cap:"",note:"爆炸图反向复位，“咔哒”合上，呼吸灯闪一下。"},
+ {d:5,src:"拍",art:"cupStill",cap:"让每一个日常动作，重新稳下来",note:"与镜头 2 完全相同构图。戴设备的手端起水杯，水面平静。全片情绪高点。"},
+ {d:3,src:"拍",art:"phone",cap:"医生和家人，随时了解变化",note:"过肩中景，手机屏贴绿，后期替换 App 周报界面。"},
+ {d:2,src:"SW",art:"logo",cap:"【产品名】 · 【Slogan】",note:"产品正面静帧 + Logo + 注册证号 / 禁忌提示小字。"}
+];
+let acc=0;shots.forEach((s,i)=>{s.i=i+1;s.t0=acc;acc+=s.d});const TOTAL=acc;
+const col={SW:"#2a6f86","拍":"#a8743a",AE:"#6b4fa0"};
+
+function device(x,y,s,glow){s=s||1;return `<g transform="translate(${x},${y}) scale(${s})">
+ <rect x="-28" y="-95" width="56" height="70" rx="14" fill="#555b63"/><rect x="-28" y="25" width="56" height="70" rx="14" fill="#555b63"/>
+ <rect x="-55" y="-40" width="110" height="80" rx="26" fill="url(#shell)" stroke="#fff" stroke-opacity=".35"/>
+ <rect x="-42" y="-28" width="84" height="56" rx="18" fill="none" stroke="#b9c2cc" stroke-width="2"/>
+ <circle cx="0" cy="0" r="7" fill="#39c6e8" opacity="${glow==null?1:glow}" filter="url(#bl)"/></g>`}
+function hand(x,y,shake){return `<g transform="translate(${x},${y})"><g ${shake?'class="sh"':''}>
+ <path d="M-60 120 C-70 40,-60 -20,-30 -40 L30 -40 C55 -20,60 40,50 120 Z" fill="#c9a07e"/>
+ <rect x="-40" y="-170" width="80" height="140" rx="8" fill="#9fd3e6" fill-opacity=".25" stroke="#cfeaf3"/>
+ <ellipse cx="0" cy="-130" rx="40" ry="6" fill="#9fd3e6" fill-opacity=".5"/></g></g>`}
+const defs=`<defs><linearGradient id="shell" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f4f5f3"/><stop offset="1" stop-color="#9ea6ae"/></linearGradient>
+<filter id="bl"><feGaussianBlur stdDeviation="4"/></filter><filter id="soft"><feGaussianBlur stdDeviation="18"/></filter>
+<radialGradient id="warm"><stop offset="0" stop-color="#5a4330"/><stop offset="1" stop-color="#16110c"/></radialGradient></defs>
+<style>.sh{animation:sh .12s infinite alternate}@keyframes sh{from{transform:translate(-3px,0) rotate(-1.5deg)}to{transform:translate(3px,2px) rotate(1.5deg)}}</style>`;
+const A={
+ title:()=>`<rect width="1280" height="720" fill="#000"/>`,
+ cupShake:()=>`<rect width="1280" height="720" fill="url(#warm)"/><rect x="0" y="560" width="1280" height="160" fill="#2b1d12"/>${hand(640,360,1)}
+  <g fill="none" stroke="#cfeaf3" opacity=".7"><ellipse cx="640" cy="230" rx="20" ry="3"/><ellipse cx="640" cy="230" rx="32" ry="5"/></g>`,
+ spiral:()=>{let p="";for(let a=0;a<30;a+=.15){const r=6+a*7,j=Math.sin(a*9)*6;p+=(a?"L":"M")+(640+Math.cos(a)*(r+j))+" "+(360+Math.sin(a)*(r-j))}
+  return `<rect width="1280" height="720" fill="#d8d2c6"/><rect x="380" y="90" width="520" height="560" fill="#fbfaf6"/><path d="${p}" fill="none" stroke="#222" stroke-width="2.5"/>`},
+ wave:()=>{let p="";for(let x=0;x<=1280;x+=8)p+=(x?"L":"M")+x+" "+(360+Math.sin(x/22)*60*Math.exp(-((x-640)**2)/120000));
+  return `<rect width="1280" height="720" fill="#020305"/><path d="${p}" fill="none" stroke="#39c6e8" stroke-width="3" filter="url(#bl)"/><path d="${p}" fill="none" stroke="#bff0ff" stroke-width="1.5"/>`},
+ reveal:()=>`<rect width="1280" height="720" fill="#030405"/><rect x="560" y="180" width="30" height="360" fill="#fff" opacity=".5" filter="url(#soft)" transform="rotate(12 640 360)"/>${device(640,360,1.8,.3)}
+  <path d="M100 640 L200 640 M180 625 L200 640 L180 655" stroke="#888" fill="none"/><text x="100" y="625" fill="#888" font-size="18">Dolly in</text>`,
+ macro:()=>`<rect width="1280" height="720" fill="#050607"/>${device(640,420,5,1)}<rect width="1280" height="720" fill="#000" opacity=".25"/><text x="60" y="660" fill="#888" font-size="18">100mm 微距 · 景深 · 横移 →</text>`,
+ hero:()=>`<rect width="1280" height="720" fill="#040506"/><ellipse cx="640" cy="560" rx="380" ry="50" fill="#111418"/>${device(640,360,2.2)}
+  <g opacity=".18" transform="translate(0,1120) scale(1,-1)">${device(640,560,2.2)}</g><path d="M420 600 A240 40 0 0 0 860 600" stroke="#888" fill="none" stroke-dasharray="6 6"/><text x="880" y="610" fill="#888" font-size="18">360°</text>`,
+ explode:()=>{const L=[["上壳","#e8eaea",150],["主板","#1f4d3a",250],["IMU 传感器","#222",320],["电池","#3a5f8a",390],["振动马达","#777",460],["下壳","#c9ced3",560]];
+  return `<rect width="1280" height="720" fill="#05070a"/>`+L.map(([n,c,y])=>`<g><rect x="490" y="${y-22}" width="300" height="44" rx="18" fill="${c}" stroke="#fff" stroke-opacity=".3" transform="skewX(-18)"/><line x1="820" y1="${y}" x2="940" y2="${y}" stroke="#39c6e8"/><text x="950" y="${y+6}" fill="#cfd6dd" font-size="20">${n}</text></g>`).join("")},
+ sensor:()=>{let p="";for(let x=700;x<=1180;x+=4)p+=(x>700?"L":"M")+x+" "+(300+Math.sin((x-700)/12.7)*45);
+  return `<rect width="1280" height="720" fill="#05070a"/><rect x="180" y="220" width="420" height="300" rx="10" fill="#173a2c"/><rect x="300" y="300" width="160" height="140" fill="#111" stroke="#666"/><text x="318" y="378" fill="#aaa" font-size="18">IMU</text>
+  <path d="${p}" stroke="#39c6e8" stroke-width="3" fill="none"/><text x="700" y="420" fill="#fff" font-size="34">静止性震颤 4–6 Hz</text><text x="700" y="460" fill="#8aa" font-size="18">AE 叠加 · 实时波形</text>`},
+ pose:()=>{const pts=[[300,560],[300,480],[260,420],[240,350],[230,290],[290,400],[285,320],[285,250],[320,400],[330,320],[335,250],[350,410],[370,340],[380,285]];
+  const ln=[[0,1],[1,2],[2,3],[3,4],[1,5],[5,6],[6,7],[1,8],[8,9],[9,10],[1,11],[11,12],[12,13]];
+  let c="";for(let x=700;x<=1180;x+=6){const k=(x-700)/480;c+=(x>700?"L":"M")+x+" "+(380+Math.sin(x/7)*60*(1-k*.85))}
+  return `<rect width="1280" height="720" fill="#0b0d10"/>`+ln.map(([a,b])=>`<line x1="${pts[a][0]}" y1="${pts[a][1]}" x2="${pts[b][0]}" y2="${pts[b][1]}" stroke="#39c6e8" stroke-width="3"/>`).join("")+pts.map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="7" fill="#fff"/>`).join("")+
+  `<rect x="680" y="220" width="520" height="320" fill="none" stroke="#333"/><path d="${c}" stroke="#7fe3a0" stroke-width="2.5" fill="none"/><text x="700" y="580" fill="#888" font-size="18">第 1 天 → 第 30 天 震颤幅度</text>`},
+ assemble:()=>`<rect width="1280" height="720" fill="#05070a"/>${device(640,360,2)}<path d="M640 120 L640 200 M620 180 L640 200 L660 180 M640 600 L640 520 M620 540 L640 520 L660 540" stroke="#888" fill="none" stroke-width="2"/><text x="680" y="140" fill="#888" font-size="18">咔哒</text>`,
+ cupStill:()=>`<rect width="1280" height="720" fill="url(#warm)"/><rect x="0" y="560" width="1280" height="160" fill="#2b1d12"/>${hand(640,360,0)}${device(640,450,.55)}`,
+ phone:()=>`<rect width="1280" height="720" fill="#1d1a17"/><circle cx="260" cy="260" r="120" fill="#3a3029"/><rect x="560" y="120" width="260" height="500" rx="30" fill="#111" stroke="#555"/><rect x="580" y="160" width="220" height="420" rx="6" fill="#00b140"/><text x="600" y="380" fill="#032" font-size="20">绿屏 → App 周报</text>`,
+ logo:()=>`<rect width="1280" height="720" fill="#040506"/>${device(640,300,1.6)}<text x="640" y="520" fill="#fff" font-size="40" text-anchor="middle" font-weight="300">【产品名】</text><text x="640" y="670" fill="#666" font-size="14" text-anchor="middle">注册证号：XXXXXXXX ｜ 请仔细阅读产品说明书或在医务人员指导下购买和使用</text>`
+};
+const svg=a=>`<svg viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg">${defs}${A[a]()}</svg>`;
+const fmt=t=>`00:${String(Math.floor(t)).padStart(2,"0")}`;
+const bar=document.getElementById("bar"),grid=document.getElementById("grid");
+shots.forEach(s=>{const d=document.createElement("div");d.style.width=(s.d/TOTAL*100)+"%";d.style.background=col[s.src];d.title="#"+s.i;bar.appendChild(d);
+ const c=document.createElement("div");c.className="card";c.innerHTML=svg(s.art)+`<div class="t"><b>#${s.i}</b> ${fmt(s.t0)}–${fmt(s.t0+s.d)} · ${s.d}s <span class="${s.src}" style="padding:1px 6px;border-radius:3px;font-size:11px">${s.src}</span><br>${s.cap?"「"+s.cap+"」<br>":""}<span style="color:#8a929c">${s.note}</span></div>`;
+ c.onclick=()=>{seek(s.t0);scrollTo({top:0,behavior:"smooth"})};grid.appendChild(c)});
+let t=0,playing=false,last=0,cur=-1;
+function show(){const s=shots.find(s=>t>=s.t0&&t<s.t0+s.d)||shots[shots.length-1];
+ if(s.i!==cur){cur=s.i;document.getElementById("frame").innerHTML=svg(s.art);document.getElementById("cap").textContent=s.cap;
+  const tg=document.getElementById("tag");tg.textContent="#"+s.i+" · "+s.src;tg.style.background=col[s.src];document.getElementById("note").textContent=s.note}
+ const k=(t-s.t0)/s.d,f=document.getElementById("frame").firstChild;
+ f.style.opacity=Math.min(1,k*6,(1-k)*8+.2);
+ if(["reveal","hero","sensor","macro"].includes(s.art))f.style.transform=`scale(${1+k*.08})`;
+ document.getElementById("cap").style.opacity=Math.min(1,k*4);
+ document.getElementById("tc").textContent=fmt(t)+":"+String(Math.floor((t%1)*25)).padStart(2,"0")+" / 01:00";
+ document.getElementById("head").style.left=(t/TOTAL*100)+"%"}
+function loop(n){if(!playing)return;t+=(n-last)/1000;last=n;if(t>=TOTAL){t=TOTAL-.001;playing=false;btn.textContent="↺ 重播"}show();requestAnimationFrame(loop)}
+function seek(x){t=x;cur=-1;show()}
+const btn=document.getElementById("play");
+btn.onclick=()=>{if(playing){playing=false;btn.textContent="▶ 播放";return}if(t>=TOTAL-.01)t=0;playing=true;btn.textContent="❚❚ 暂停";last=performance.now();requestAnimationFrame(loop)};
+bar.onclick=e=>{const r=bar.getBoundingClientRect();seek((e.clientX-r.left)/r.width*TOTAL)};
+show();
+</script>
+</body>
+</html>
